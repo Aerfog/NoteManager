@@ -9,6 +9,7 @@ var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 builder.Services.AddDbContextPool<ApplicationDbContext>(contextOptionsBuilder => contextOptionsBuilder.UseSqlServer(@"Server = (localdb)\mssqllocaldb;Database = NoteManagerDb;Trusted_Connection = True;")
     .EnableDetailedErrors()
     .EnableSensitiveDataLogging()
+    .UseLazyLoadingProxies()
     .LogTo(Console.WriteLine, LogLevel.Information));
 
 var app = builder.Build();

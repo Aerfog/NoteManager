@@ -1,5 +1,9 @@
-﻿@model NoteManagerServices.Entities.Note
+﻿@using NoteManagerServices.Entities
+@model IEnumerable<Note>
 @{
     ViewData["Title"] = "Home Page";
 }
-@Html.DisplayForModel("Notes", Model)
+@foreach (var item in Model)
+{
+    @Html.DisplayForModel("Notes", item)
+}

@@ -14,11 +14,11 @@ public class NotesController : Controller
         _context = context;
     }
     
-    [Route("[controller]/[action]/{userLogin}")]
-    [HttpGet("{userLogin}")] // GET}
-    public IActionResult Get(string userLogin)
+    [Route("[controller]/[action]/{noteId}")]
+    [HttpGet("{noteId}")] // GET}
+    public IActionResult Get(Guid noteId)
     {
-        var notes = _context.Notes?.Where(n => n.UserLogin.Equals(userLogin)).First();
+        var notes = _context.Notes?.Where(n => n.NoteId.Equals(noteId)).ToList();
         return View(notes);
     }
 }
