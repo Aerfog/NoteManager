@@ -5,5 +5,5 @@
 }
 @foreach (var item in Model)
 {
-    @Html.DisplayForModel("Notes", item)
+    <partial name="DisplayTemplates/Notes" model="item"/>
 }
