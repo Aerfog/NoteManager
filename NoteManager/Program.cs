@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NoteManagerServices.AppDbContext;
+using NoteManagerServices.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddDbContextPool<ApplicationDbContext>(contextOptionsBuilder =>
     .EnableSensitiveDataLogging()
     .UseLazyLoadingProxies()
     .LogTo(Console.WriteLine, LogLevel.Information));
+builder.Services.AddScoped<INoteRepository, NoteRepository>();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.

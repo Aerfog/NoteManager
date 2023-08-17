@@ -1,24 +1,40 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NoteManagerServices.AppDbContext;
+using NoteManagerServices.Entities;
+using NoteManagerServices.Repositories;
 
 namespace NoteManager.Controllers;
 
 public class NotesController : Controller
 {
     private readonly ILogger<NotesController> _logger;
-    private readonly ApplicationDbContext _context;
+    private readonly INoteRepository _repository;
 
-    public NotesController(ILogger<NotesController> logger,[FromServices] ApplicationDbContext context)
+    public NotesController(ILogger<NotesController> logger,[FromServices] INoteRepository repository)
     {
         _logger = logger;
-        _context = context;
+        _repository = repository;
     }
     
     [Route("[controller]/[action]/{noteId}")]
     [HttpGet("{noteId}")] // GET}
-    public IActionResult Get(Guid noteId)
+    public async Task<IActionResult> Get(Guid noteId)
     {
-        var notes = _context.Notes?.Where(n => n.NoteId.Equals(noteId)).ToList();
-        return View(notes);
+        return await Task.Run(async () =>
+        {
+            var note = await _repository.GetNoteAsync(noteId);
+            var noteList = new List<Note>(){note};
+            return View(noteList);
+        });
+    }
+    [Route("[controller]/[action]/")]
+    [HttpGet()]
+    public async Task<IActionResult> Get()
+    {
+        return await Task.Run(async () =>
+        {
+            var notes = await _repository.GetNotesAsync(0, 4);
+            return View(notes);
+        });
     }
 }
