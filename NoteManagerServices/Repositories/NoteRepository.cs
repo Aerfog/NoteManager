@@ -83,6 +83,7 @@ public class NoteRepository : INoteRepository
             {
                 note.CreateDateTime = DateTime.Now;
                 _context.Notes?.Add(note);
+                _context.SaveChanges();
                 return note.NoteId;
             }
             catch (Exception exception)
@@ -101,6 +102,7 @@ public class NoteRepository : INoteRepository
             {
                 var note = await GetNoteAsync(noteId);
                 _context.Notes?.Remove(note);
+                await _context.SaveChangesAsync();
             }
             catch (NoteNotFoundException e)
             {
@@ -125,6 +127,7 @@ public class NoteRepository : INoteRepository
                 oldNote.EditDateTime = DateTime.Now;
                 oldNote.Title = note.Title;
                 oldNote.Body = note.Body;
+                await _context.SaveChangesAsync();
             }
             catch (NoteNotFoundException e)
             {
