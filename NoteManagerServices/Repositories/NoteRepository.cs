@@ -13,14 +13,15 @@ public class NoteRepository : INoteRepository
         _context = context;
     }
 
-    public async Task<IList<Note>> GetNotesAsync(int skip, int count)
+    public async Task<IList<Note>> GetNotesAsync(int skip, int count, string id)
     {
         return await Task.Run(async () =>
         {
             try
             {
                 var noteList = new List<Note>();
-                var idList = _context.Notes?.Skip(skip)
+                var idList = _context.Notes?.Where(n => n.UserId.ToString().Equals(id))
+                    .Skip(skip)
                     .Take(count)
                     .Select(n => n.NoteId)
                     .OrderBy(n => n)
@@ -30,7 +31,7 @@ public class NoteRepository : INoteRepository
 
                 foreach (var guid in idList)
                 {
-                    noteList.Add(await GetNoteAsync(guid));
+                    noteList.Add(await GetNoteAsync(guid, id));
                 }
 
                 return noteList;
@@ -48,7 +49,7 @@ public class NoteRepository : INoteRepository
         });
     }
 
-    public async Task<Note> GetNoteAsync(Guid noteId)
+    public async Task<Note> GetNoteAsync(Guid noteId, string id)
     {
         return await Task.Run(() =>
         {
@@ -59,6 +60,11 @@ public class NoteRepository : INoteRepository
                 {
                     throw new NoteNotFoundException();
                 }
+                if (!note.UserId.ToString().Equals(id))
+                {
+                    throw new Exception();
+                }
+                
 
                 return note;
             }
@@ -75,13 +81,14 @@ public class NoteRepository : INoteRepository
         });
     }
 
-    public async Task<Guid> AddNoteAsync(Note note)
+    public async Task<Guid> AddNoteAsync(Note note, string id)
     {
         return await Task.Run(() =>
         {
             try
             {
                 note.CreateDateTime = DateTime.Now;
+                note.UserId = new Guid(id);
                 _context.Notes?.Add(note);
                 _context.SaveChanges();
                 return note.NoteId;
@@ -94,13 +101,13 @@ public class NoteRepository : INoteRepository
         });
     }
 
-    public async Task RemoveNoteAsync(Guid noteId)
+    public async Task RemoveNoteAsync(Guid noteId, string id)
     {
         await Task.Run(async () =>
         {
             try
             {
-                var note = await GetNoteAsync(noteId);
+                var note = await GetNoteAsync(noteId, id);
                 _context.Notes?.Remove(note);
                 await _context.SaveChangesAsync();
             }
@@ -117,13 +124,13 @@ public class NoteRepository : INoteRepository
         });
     }
 
-    public async Task UpdateNoteAsync(Note note)
+    public async Task UpdateNoteAsync(Note note, string id)
     {
         await Task.Run(async () =>
         {
             try
             {
-                var oldNote = await GetNoteAsync(note.NoteId);
+                var oldNote = await GetNoteAsync(note.NoteId, id);
                 oldNote.EditDateTime = DateTime.Now;
                 oldNote.Title = note.Title;
                 oldNote.Body = note.Body;

@@ -22,7 +22,13 @@ public class NotesController : Controller
     {
         return await Task.Run(async () =>
         {
-            var note = await _repository.GetNoteAsync(noteId);
+            var user = HttpContext.User.Claims.ToList();
+            if (user.Count == 0)
+            {
+                return Redirect("~/Identity/Account/Login") as IActionResult;
+            }
+            var userId = user.ToList()[0].Value;
+            var note = await _repository.GetNoteAsync(noteId, userId);
             var noteList = new List<Note>(){note};
             return View(noteList);
         });
@@ -33,7 +39,13 @@ public class NotesController : Controller
     {
         return await Task.Run(async () =>
         {
-            var notes = await _repository.GetNotesAsync(0, 4);
+            var user = HttpContext.User.Claims.ToList();
+            if (user.Count == 0)
+            {
+                return Redirect("~/Identity/Account/Login") as IActionResult;
+            }
+            var userId = user.ToList()[0].Value;
+            var notes = await _repository.GetNotesAsync(0, 4, userId);
             return View(notes);
         });
     }
